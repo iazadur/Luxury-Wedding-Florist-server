@@ -109,16 +109,40 @@ async function run() {
             res.send(result);
         });
 
+
+
+
         // ORDERS
 
-        
+
         // Insert a Order into ordersCollections
         app.post('/order', async (req, res) => {
             const order = req.body
-            const result = await ordersCollection.insertOne(review)
+            const result = await ordersCollection.insertOne(order)
             res.json(result)
         })
 
+        // Get a user Orders into ordersCollections
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const orders = await ordersCollection.find(query).toArray()
+            res.json(orders)
+        })
+
+        // Read all Product into Database
+        app.get('/orders', async (req, res) => {
+            const result = await ordersCollection.find({}).toArray()
+            res.json(result)
+        })
+
+        // Delete Product into Productcollection
+        app.delete("/orders/:id", async (req, res) => {
+            const result = await ordersCollection.deleteOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
 
 
 
