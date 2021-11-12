@@ -4,16 +4,17 @@ const app = express()
 require('dotenv').config()
 const { MongoClient } = require('mongodb');
 const admin = require("firebase-admin");
+const ObjectId = require('mongodb').ObjectId;
 
-// DB_USER=doctorsDB
-// DB_PASS=YxyuBKsMkQ5UGHAw
+// DB_USER=luxurydb
+// DB_PASS=sUwNLLDo5MjSYnDo
 
 const port = process.env.PORT || 5000
 
-// doctors-portal-2a835-firebase-adminsdk-gksn2-8223ec5645.json
+// require("./niche-flowers-firebase-adminsdk-p3l1w-e7fdcaea81.json");
 
 
-const serviceAccount = require("./doctors-portal-2a835-firebase-adminsdk-gksn2-8223ec5645.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -46,29 +47,104 @@ async function verifyToken(req, res, next) {
 async function run() {
     try {
         await client.connect();
-        const database = client.db('doctors_portal');
-        const appointmentsCollection = database.collection('appointments')
+        const database = client.db('luxury_florist');
         const usersCollection = database.collection('users')
+        const productsCollection = database.collection('products')
+        const ordersCollection = database.collection('orders')
+        const reviewsCollection = database.collection('review')
 
-        // Insert Appointments into Database
-        app.post('/appointments', async (req, res) => {
-            const appointment = req.body
-            const result = await appointmentsCollection.insertOne(appointment)
+        // Insert a Product into Database
+        app.post('/products', async (req, res) => {
+            const product = req.body
+            const result = await productsCollection.insertOne(product)
             res.json(result)
         })
 
-        // Get Appointments into Database
-        app.get('/appointments',verifyToken, async (req, res) => {
-            const email = req.query.email
-            const date = new Date(req.query.date).toLocaleDateString()
-            const query = { email: email, date: date }
-            const cursor = appointmentsCollection.find(query)
-            const appointments = await cursor.toArray()
-            // const appointments = await appointmentsCollection.find({ email: req.query.email }).toArray()
-            res.json(appointments)
+        // Read all Product into Database
+        app.get('/products', async (req, res) => {
+            const result = await productsCollection.find({}).toArray()
+            res.json(result)
         })
 
-        // Get Admin or normal users into UsersCollection
+
+        // Read a Product into Productcollection
+        app.get("/products/:id", async (req, res) => {
+            const result = await productsCollection.findOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+
+        // Delete Product into Productcollection
+        app.delete("/products/:id", async (req, res) => {
+            const result = await productsCollection.deleteOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+
+        //   Review
+
+        // Insert a Review into Database
+        app.post('/review', async (req, res) => {
+            const review = req.body
+            const result = await reviewsCollection.insertOne(review)
+            res.json(result)
+        })
+
+        // Read all Review into Database
+        app.get('/review', async (req, res) => {
+            const result = await reviewsCollection.find({}).toArray()
+            res.json(result)
+        })
+
+
+        // Delete Review into Ordercollection
+        app.delete("/review/:id", async (req, res) => {
+            const result = await reviewsCollection.deleteOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+        // ORDERS
+
+        
+        // Insert a Order into ordersCollections
+        app.post('/order', async (req, res) => {
+            const order = req.body
+            const result = await ordersCollection.insertOne(review)
+            res.json(result)
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Get Appointments into Database
+        // app.get('/appointments', verifyToken, async (req, res) => {
+        //     const email = req.query.email
+        //     const date = new Date(req.query.date).toLocaleDateString()
+        //     const query = { email: email, date: date }
+        //     const cursor = appointmentsCollection.find(query)
+        //     const appointments = await cursor.toArray()
+        //     // const appointments = await appointmentsCollection.find({ email: req.query.email }).toArray()
+        //     res.json(appointments)
+        // })
+
+        // Get Admin or normal users into UsersCollection returning value true or false
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email
             const query = { email: email }
@@ -76,7 +152,9 @@ async function run() {
             let isAdmin = false
             if (user?.role === 'admin') {
                 isAdmin = true
+                console.log(isAdmin);
             }
+
             res.json({ admin: isAdmin })
         })
 
@@ -99,6 +177,7 @@ async function run() {
         // Update Admin role into usersCollection
         app.put('/users/admin', verifyToken, async (req, res) => {
             const user = req.body
+            console.log(user);
             const requester = req.decodedEmail
             if (requester) {
                 const requesterAccount = await usersCollection.findOne({ email: requester })
