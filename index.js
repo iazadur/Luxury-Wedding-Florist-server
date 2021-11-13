@@ -75,7 +75,28 @@ async function run() {
             res.send(result);
         });
 
+        // UPDATE
 
+        // Read a Product from Productscollection
+        app.get("/updateProduct/:id", async (req, res) => {
+            const result = await productsCollection.findOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+        // Update Order Status into orderCollection
+        app.put('/updateProduct/:id', async (req, res) => {
+            const product = req.body
+            console.log(product);
+            const filter = {_id: ObjectId(req.params.id) }
+            const options = { upsert: true };
+            const updateDoc = { $set: product };
+            const result = await productsCollection.updateMany(filter, updateDoc, options);
+            res.json(result)
+        })
+
+       // DELETE
         // Delete Product into Productcollection
         app.delete("/products/:id", async (req, res) => {
             const result = await productsCollection.deleteOne({
@@ -144,6 +165,7 @@ async function run() {
             res.send(result);
         });
 
+        // Update Order Status into orderCollection
         app.put('/updateOrder/:id', async (req, res) => {
             const status = req.body
             const filter = {_id: ObjectId(req.params.id) }
