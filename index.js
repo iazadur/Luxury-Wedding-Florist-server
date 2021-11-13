@@ -89,14 +89,14 @@ async function run() {
         app.put('/updateProduct/:id', async (req, res) => {
             const product = req.body
             console.log(product);
-            const filter = {_id: ObjectId(req.params.id) }
+            const filter = { _id: ObjectId(req.params.id) }
             const options = { upsert: true };
             const updateDoc = { $set: product };
             const result = await productsCollection.updateMany(filter, updateDoc, options);
             res.json(result)
         })
 
-       // DELETE
+        // DELETE
         // Delete Product into Productcollection
         app.delete("/products/:id", async (req, res) => {
             const result = await productsCollection.deleteOne({
@@ -168,7 +168,7 @@ async function run() {
         // Update Order Status into orderCollection
         app.put('/updateOrder/:id', async (req, res) => {
             const status = req.body
-            const filter = {_id: ObjectId(req.params.id) }
+            const filter = { _id: ObjectId(req.params.id) }
             const options = { upsert: true };
             const updateDoc = { $set: status };
             const result = await ordersCollection.updateOne(filter, updateDoc, options);
@@ -187,26 +187,7 @@ async function run() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-        // Get Appointments into Database
-        // app.get('/appointments', verifyToken, async (req, res) => {
-        //     const email = req.query.email
-        //     const date = new Date(req.query.date).toLocaleDateString()
-        //     const query = { email: email, date: date }
-        //     const cursor = appointmentsCollection.find(query)
-        //     const appointments = await cursor.toArray()
-        //     // const appointments = await appointmentsCollection.find({ email: req.query.email }).toArray()
-        //     res.json(appointments)
-        // })
+        // USER API START
 
         // Get Admin or normal users into UsersCollection returning value true or false
         app.get('/users/:email', async (req, res) => {
@@ -238,10 +219,10 @@ async function run() {
             res.json(result)
         })
 
+
         // Update Admin role into usersCollection
         app.put('/users/admin', verifyToken, async (req, res) => {
             const user = req.body
-            console.log(user);
             const requester = req.decodedEmail
             if (requester) {
                 const requesterAccount = await usersCollection.findOne({ email: requester })
