@@ -88,7 +88,6 @@ async function run() {
         // Update Order Status into orderCollection
         app.put('/updateProduct/:id', async (req, res) => {
             const product = req.body
-            console.log(product);
             const filter = { _id: ObjectId(req.params.id) }
             const options = { upsert: true };
             const updateDoc = { $set: product };
@@ -197,7 +196,6 @@ async function run() {
             let isAdmin = false
             if (user?.role === 'admin') {
                 isAdmin = true
-                console.log(isAdmin);
             }
 
             res.json({ admin: isAdmin })
@@ -230,7 +228,6 @@ async function run() {
                     const filter = { email: user.email }
                     const updateDoc = { $set: { role: 'admin' } };
                     const result = await usersCollection.updateOne(filter, updateDoc);
-                    console.log(result);
                     res.json(result)
                 }
             }
