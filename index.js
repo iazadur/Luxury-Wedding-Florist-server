@@ -130,13 +130,31 @@ async function run() {
             res.json(orders)
         })
 
-        // Read all Product into Database
+        // Read all Product into Orderscollection
         app.get('/orders', async (req, res) => {
             const result = await ordersCollection.find({}).toArray()
             res.json(result)
         })
 
-        // Delete Product into Productcollection
+        // Read a order from Orderscollection
+        app.get("/updateOrders/:id", async (req, res) => {
+            const result = await ordersCollection.findOne({
+                _id: ObjectId(req.params.id),
+            });
+            res.send(result);
+        });
+
+        app.put('/updateOrder/:id', async (req, res) => {
+            const status = req.body
+            const filter = {_id: ObjectId(req.params.id) }
+            const options = { upsert: true };
+            const updateDoc = { $set: status };
+            const result = await ordersCollection.updateOne(filter, updateDoc, options);
+            res.json(result)
+        })
+
+
+        // Delete Order into Orderscollection
         app.delete("/orders/:id", async (req, res) => {
             const result = await ordersCollection.deleteOne({
                 _id: ObjectId(req.params.id),
